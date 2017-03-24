@@ -4,7 +4,6 @@ import yaml
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
 from tweepy import Stream
-from http.client import IncompleteRead
 from rq import Queue
 from tweetprocessor import process_tweet
 
@@ -15,25 +14,26 @@ f.close()
 
 r = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
 q = Queue(connection=redis.Redis())
-r.set("tweet_count", 0)
-r.hmset("stats", {
-    'lang': {},
-    'tweet_count': 0,
-    'word_cloud': {},
-    'hashtags': {},
-    'users': {},
-    'date': {},
-    'day': {},
-    'hour': {},
-    'loc': {}
-})
+if not r.exists("stats"):
+    r.set("tweet_count", 0)
+    r.hmset("stats", {
+        'lang': {},
+        'tweet_count': 0,
+        'word_cloud': {},
+        'hashtags': {},
+        'users': {},
+        'date': {},
+        'day': {},
+        'hour': {},
+        'loc': {}
+    })
 
 
 class StdOutListener(StreamListener):
     """This is a basic listener that receives tweets."""
 
     def on_data(self, data):
-        """Function that enqueues tweets to RabbitQ."""
+        """Function that enqueues tweets to rq."""
         q.enqueue(process_tweet, data)
         return True
 
@@ -52,13 +52,9 @@ if __name__ == '__main__':
     while True:
         try:
             stream = Stream(auth, l)
-            stream.filter(track=[
-                'anime', 'manga', 'naruto', 'dragonball', 'dragon ball', 'dbz',
-                'bleach', 'goku', 'vegeta', 'tokyo ghoul', 'attack on titans',
-                'one piece', 'luffy'
-            ])
-        except IncompleteRead:
-            continue
+            stream.filter(track=['anime'])
         except KeyboardInterrupt:
             stream.disconnect()
             break
+        except:
+            continue
