@@ -3,8 +3,14 @@ import json
 import re
 import ast
 import redis
+import os
 from datetime import datetime
 from textblob import TextBlob
+from celery import Celery
+
+
+app = Celery('tasks', broker='redis://localhost:6379/2')
+
 
 r = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
 text_file = open("stop_words.txt", "r")
@@ -66,29 +72,33 @@ def calc(key, dict_):
     return temp_dict
 
 
-def process_tweet(data):
+@app.task
+def process_tweet(filename):
     """Funciton to process the tweets received from Twitter Stream."""
-    dict_ = to_dict(data)
-    blob = TextBlob(dict_["text"])
-    lang = blob.detect_language()
-    if not (lang == "en"):
-        try:
-            dict_["text"] = str(blob.translate(to="en"))
-        except Exception:
-            pass
-    r.incr("tweet_count")
-    stats = r.hgetall("stats")
-    stats["tweet_count"] = r.get("tweet_count")
-    stats["lang"] = calc(lang, stats["lang"])
-    stats["date"] = calc(dict_["date"], stats["date"])
-    stats["day"] = calc(dict_["day"], stats["day"])
-    stats["hour"] = calc(dict_["hour"], stats["hour"])
-    for hashtag in dict_["hashtags"]:
-        stats["hashtags"] = calc(hashtag, stats["hashtags"])
+    with open(filename) as lines:
+        for line in lines:
+            dict_ = to_dict(line)
+            blob = TextBlob(dict_["text"])
+            lang = blob.detect_language()
+            if not (lang == "en"):
+                try:
+                    dict_["text"] = str(blob.translate(to="en"))
+                except Exception:
+                    pass
+            r.incr("tweet_count")
+            stats = r.hgetall("stats")
+            stats["tweet_count"] = r.get("tweet_count")
+            stats["lang"] = calc(lang, stats["lang"])
+            stats["date"] = calc(dict_["date"], stats["date"])
+            stats["day"] = calc(dict_["day"], stats["day"])
+            stats["hour"] = calc(dict_["hour"], stats["hour"])
+            for hashtag in dict_["hashtags"]:
+                stats["hashtags"] = calc(hashtag, stats["hashtags"])
 
-    stats["users"] = calc(dict_["screen_name"], stats["users"])
-    words_list = word_list(dict_["text"])
-    for word in words_list:
-        stats["word_cloud"] = calc(word, stats["word_cloud"])
+            stats["users"] = calc(dict_["screen_name"], stats["users"])
+            words_list = word_list(dict_["text"])
+            for word in words_list:
+                stats["word_cloud"] = calc(word, stats["word_cloud"])
 
-    r.hmset("stats", stats)
+            r.hmset("stats", stats)
+    os.remove(filename)
