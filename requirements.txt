@@ -1,4 +1,6 @@
 celery==4.0.2
+Flask==0.11.1
+pandas==0.19.2
 textblob==0.12.0
 tweepy==3.5.0
 redis==2.10.5

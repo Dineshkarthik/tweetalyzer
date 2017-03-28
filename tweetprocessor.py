@@ -9,7 +9,7 @@ from textblob import TextBlob
 from celery import Celery
 
 
-app = Celery('tasks', broker='redis://localhost:6379/2')
+application = Celery('tasks', broker='redis://localhost:6379/2')
 
 
 r = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
@@ -72,7 +72,7 @@ def calc(key, dict_):
     return temp_dict
 
 
-@app.task
+@application.task
 def process_tweet(filename):
     """Funciton to process the tweets received from Twitter Stream."""
     with open(filename) as lines:
@@ -87,13 +87,12 @@ def process_tweet(filename):
                     pass
             r.incr("tweet_count")
             stats = r.hgetall("stats")
-            stats["tweet_count"] = r.get("tweet_count")
             stats["lang"] = calc(lang, stats["lang"])
             stats["date"] = calc(dict_["date"], stats["date"])
             stats["day"] = calc(dict_["day"], stats["day"])
             stats["hour"] = calc(dict_["hour"], stats["hour"])
             for hashtag in dict_["hashtags"]:
-                stats["hashtags"] = calc(hashtag, stats["hashtags"])
+                stats["hashtags"] = calc(hashtag.lower(), stats["hashtags"])
 
             stats["users"] = calc(dict_["screen_name"], stats["users"])
             words_list = word_list(dict_["text"])

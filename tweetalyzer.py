@@ -1,12 +1,13 @@
 """Import the necessary methods from tweepy library."""
 import redis
 import yaml
+import threading
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
 from tweepy import Stream
 from datetime import datetime, timedelta
 from tweetprocessor import process_tweet
-import threading
+
 
 # User credentials to access Twitter API
 f = open('config.yaml')
@@ -18,7 +19,6 @@ if not r.exists("stats"):
     r.set("tweet_count", 0)
     r.hmset("stats", {
         'lang': {},
-        'tweet_count': 0,
         'word_cloud': {},
         'hashtags': {},
         'users': {},
@@ -63,6 +63,7 @@ if __name__ == '__main__':
     threading.Timer(60.0, init_task).start()
     while True:
         try:
+            print("inside")
             stream = Stream(auth, l)
             stream.filter(track=['anime'])
         except KeyboardInterrupt:
