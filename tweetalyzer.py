@@ -63,9 +63,9 @@ if __name__ == '__main__':
     threading.Timer(60.0, init_task).start()
     while True:
         try:
-            print("inside")
+            print("Started Streaming tweets...!")
             stream = Stream(auth, l)
-            stream.filter(track=['anime'])
+            stream.filter(track=twitter_config["topics"])
         except KeyboardInterrupt:
             stream.disconnect()
             break
