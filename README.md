@@ -13,3 +13,12 @@ Tweetalyzer uses a number of open source projects to work properly:
 * [Celery] - Celery is an asynchronous task queue/job queue based on distributed message passing.
 * [TextBlob] - TextBlob is a Python (2 and 3) library for processing textual data.
 * [Tweepy] - An easy-to-use Python library for accessing the Twitter API.
+
+### Installation
+
+You need Python 3.*, its dependency packages, and the above mentioned packages installed globally:
+```sh
+$ git clone https://github.com/Dineshkarthik/tweetalyzer.git
+$ cd tweetalyzer
+$ pip install -r requirements.txt
+```
