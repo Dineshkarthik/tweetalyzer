@@ -22,3 +22,14 @@ $ git clone https://github.com/Dineshkarthik/tweetalyzer.git
 $ cd tweetalyzer
 $ pip install -r requirements.txt
 ```
+
+### Execution
+```sh
+$ python tweetalyzer.py
+$ python server.py
+$ celery -A tweetprocessor worker --loglevel=info
+```
+* Running `tweetalyzer.py` will start streaming the tweets in the specified topics and will store them in text files.
+* Running `sever.py` will start the flask server and the visualisation can be accessed at `http://localhost:5000` 
+* server.py will start the flask server in port 5000 by default which can be started in any other port like `python server.py -p 8000`
+* Command `celery -A tweetprocessor worker --loglevel=info` will start the celery workers which will start processing the stored tweets, which happens every one minute.
