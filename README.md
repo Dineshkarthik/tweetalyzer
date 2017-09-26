@@ -33,3 +33,37 @@ $ celery -A tweetprocessor worker --loglevel=info
 * Running `sever.py` will start the flask server and the visualisation can be accessed at `http://localhost:5000` 
 * server.py will start the flask server in port 5000 by default which can be started in any other port like `python server.py -p 8000`
 * Command `celery -A tweetprocessor worker --loglevel=info` will start the celery workers which will start processing the stored tweets, which happens every one minute.
+
+
+## Configuration 
+
+    access_token: 'your_access_token'
+    access_token_secret: 'your_access_token_secret'
+    consumer_key: 'your_consumer_key'
+    consumer_secret: 'your_consumer_secret'
+    topics: ['python', 'golang', '#ruby']
+ 
+ * To get the above tokens for authenticating the python application to access your twitter account follow the Steps from 2 to 4 in [here](https://www.digitalocean.com/community/tutorials/how-to-authenticate-a-python-application-with-twitter-using-tweepy-on-ubuntu-14-04). 
+ *  topics - add the list of topics that need to be streamed.
+
+
+License
+----
+
+MIT
+
+
+**Free Software, Hell Yeah!**
+
+
+
+   [D3.js]: <https://d3js.org/>
+   [Flask]: <http://flask.pocoo.org/>
+   [Pandas]: <http://pandas.pydata.org/>
+   [Redis]: <https://redis.io/>
+   [Celery]: <http://www.celeryproject.org/>
+   [Twitter Bootstrap]: <http://twitter.github.com/bootstrap/>
+   [jQuery]: <http://jquery.com>
+   [TextBlob]: <https://textblob.readthedocs.io/en/dev/>
+   [Tweepy]: <http://www.tweepy.org/>
+  
