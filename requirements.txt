@@ -1,4 +1,4 @@
-celery==4.0.2
+celery==4.4.5
 Flask==1.0
 pandas==1.0.5
 textblob==0.12.0
